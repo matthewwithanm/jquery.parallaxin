@@ -48,9 +48,12 @@
             if (!P.$win) {
                 P.$win = $(window);
             }
-
-            P.$win.on('scroll', P.onScroll);
-            if (this.options.responsive) {
+            if (!P._hasScrollHandler) {
+                P._hasScrollHandler = true;
+                P.$win.on('scroll', P.onScroll);
+            }
+            if (!P._hasResizeHandler && this.options.responsive) {
+                P._hasResizeHandler = true;
                 P.$win.on('resize', P.onWindowResize);
             }
 
