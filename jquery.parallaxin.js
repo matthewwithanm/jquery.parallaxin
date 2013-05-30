@@ -97,20 +97,20 @@
 
             this.forAxes(
                 function () {
-                    css.left = this.updatePosition(containerPosition.left,
-                        containerSize.width, size.width, scrollPosition.left,
-                        windowSize.width);
+                    css.left = this.updatePosition(bounds.L, bounds.R,
+                        containerPosition.left, containerSize.width, size.width,
+                        scrollPosition.left, windowSize.width);
                 },
                 function () {
-                    css.top = this.updatePosition(containerPosition.top,
-                        containerSize.height, size.height, scrollPosition.top,
-                        windowSize.height);
+                    css.top = this.updatePosition(bounds.T, bounds.B,
+                        containerPosition.top, containerSize.height,
+                        size.height, scrollPosition.top, windowSize.height);
                 }
             );
             this.$el.css(css);
         },
 
-        updatePosition: function (containerPosition, containerSize, elSize, scrollPosition, windowSize) {
+        updatePosition: function (boundsMin, boundsMax, containerPosition, containerSize, elSize, scrollPosition, windowSize) {
             // When the container is at the top of the viewport (min scrollTop),
             // $el should be aligned to its top. When the container is at the
             // bottom of the viewport (max scrollTop), $el should be aligned to
@@ -119,8 +119,8 @@
                 min = containerPosition + containerSize - windowSize,
                 max = containerPosition,
                 pct = (scrollPosition - min) / (max - min),
-                overflow = elSize - containerSize,
-                pos = (1 - pct) * -overflow;
+                overflow = elSize - (boundsMax - boundsMin),
+                pos = boundsMin + (1 - pct) * -overflow;
             return pos;
         },
 
