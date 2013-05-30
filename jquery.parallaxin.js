@@ -107,7 +107,10 @@
                         size.height, scrollPosition.top, windowSize.height);
                 }
             );
-            this.$el.css(css);
+
+            if (css.left !== undefined || css.top !== undefined) {
+                this.$el.css(css);
+            }
         },
 
         updatePosition: function (boundsMin, boundsMax, containerPosition, containerSize, elSize, scrollPosition, windowSize) {
@@ -115,12 +118,22 @@
             // $el should be aligned to its top. When the container is at the
             // bottom of the viewport (max scrollTop), $el should be aligned to
             // the bottom.
-            var
-                min = containerPosition + containerSize - windowSize,
-                max = containerPosition,
-                pct = (scrollPosition - min) / (max - min),
-                overflow = elSize - (boundsMax - boundsMin),
-                pos = boundsMin + (1 - pct) * -overflow;
+            var min, max, pct, overflow, pos;
+
+            if (containerPosition + containerSize < scrollPosition) {
+                // Container is above viewport.
+                return undefined;
+            }
+            if (containerPosition > scrollPosition + windowSize) {
+                // Container is below viewport.
+                return undefined;
+            }
+
+            min = containerPosition + containerSize - windowSize;
+            max = containerPosition;
+            pct = (scrollPosition - min) / (max - min);
+            overflow = elSize - (boundsMax - boundsMin);
+            pos = boundsMin + (1 - pct) * -overflow;
             return pos;
         },
 
