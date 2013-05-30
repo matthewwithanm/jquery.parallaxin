@@ -118,7 +118,7 @@
             // $el should be aligned to its top. When the container is at the
             // bottom of the viewport (max scrollTop), $el should be aligned to
             // the bottom.
-            var min, max, pct, overflow, pos;
+            var min, max, pct, targetMin, targetMax, pos;
 
             if (containerPosition + containerSize < scrollPosition) {
                 // Container is above viewport.
@@ -129,11 +129,20 @@
                 return undefined;
             }
 
-            min = containerPosition + containerSize - windowSize;
-            max = containerPosition;
+            if (elSize <= windowSize) {
+                max = containerPosition;
+                min = containerPosition + containerSize - windowSize;
+                targetMin = boundsMax - elSize;
+                targetMax = boundsMin;
+            } else {
+                min = containerPosition - windowSize;
+                max = containerPosition + containerSize;
+                targetMin = boundsMin - elSize;
+                targetMax = boundsMax;
+            }
+
             pct = (scrollPosition - min) / (max - min);
-            overflow = elSize - (boundsMax - boundsMin);
-            pos = boundsMin + (1 - pct) * -overflow;
+            pos = targetMin + pct * (targetMax - targetMin);
             return pos;
         },
 
