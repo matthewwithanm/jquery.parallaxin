@@ -58,7 +58,7 @@
             }
 
             P.instances.push(this);
-            this.update();
+            this.update(false);
             return this;
         },
 
@@ -69,10 +69,11 @@
         },
 
         // Update the position of the element.
-        update: function () {
+        update: function (r) {
             var
-                recalculateContainerSize = this.options.responsive,
-                recalculateSize = this.options.responsive,
+                recalculate = r !== false,
+                recalculateContainerSize = recalculate,
+                recalculateSize = recalculate,
                 // TODO: Performance could be improved if there could be an option for setting this to false and a way to do it manually. (Gotta figure out a good name for the option.)
                 recalculateContainerPosition = true,
                 bounds = this._bounds,
@@ -268,7 +269,7 @@
         for (i = P.instances.length - 1; i >= 0; i -= 1) {
             instance = P.instances[i];
             if ((topChanged && instance.options.vertical) || (leftChanged && instance.options.horizontal)) {
-                instance.update();
+                instance.update(false);
             }
         }
     };
