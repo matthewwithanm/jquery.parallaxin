@@ -272,24 +272,28 @@
     };
 
     Parallaxin.onScroll = function () {
-        var oldPos = P._scrollPosition,
+        var i, instance,
+            oldPos = P._scrollPosition,
             pos = P.getScrollPosition(true),
             topChanged = oldPos && oldPos.top !== pos.top,
             leftChanged = oldPos && oldPos.top !== pos.top;
-        $.each(P.instances, function (index, value) {
-            if ((topChanged && value.options.vertical) || (leftChanged && value.options.horizontal)) {
-                value.update();
+        for (i = P.instances.length - 1; i >= 0; i -= 1) {
+            instance = P.instances[i];
+            if ((topChanged && instance.options.vertical) || (leftChanged && instance.options.horizontal)) {
+                instance.update();
             }
-        });
+        }
     };
 
     Parallaxin.onWindowResize = function () {
+        var i, instance;
         P.getWindowSize(true);
-        $.each(P.instances, function (index, value) {
-            if (value.options.responsive) {
-                value.update();
+        for (i = P.instances.length - 1; i >= 0; i -= 1) {
+            instance = P.instances[i];
+            if (instance.options.responsive) {
+                instance.update();
             }
-        });
+        }
     };
 
 
