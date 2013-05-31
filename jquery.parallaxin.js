@@ -272,9 +272,14 @@
     };
 
     Parallaxin.onScroll = function () {
-        P.getScrollPosition(true);
+        var oldPos = P._scrollPosition,
+            pos = P.getScrollPosition(true),
+            topChanged = oldPos && oldPos.top !== pos.top,
+            leftChanged = oldPos && oldPos.top !== pos.top;
         $.each(P.instances, function (index, value) {
-            value.update();
+            if ((topChanged && value.options.vertical) || (leftChanged && value.options.horizontal)) {
+                value.update();
+            }
         });
     };
 
