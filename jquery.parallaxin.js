@@ -94,22 +94,21 @@
 
             if (recalculateContainerPosition || !containerPosition) {
                 // Unlike sizes, jQUery calculates both vertical and horizontal
-                // positions with one measurement, so no need to use `forAxes`.
+                // positions with one measurement, so we can't do them
+                // separately.
                 containerPosition = this._containerPosition = this.$container.offset();
             }
 
-            this.forAxes(
-                function () {
-                    css.left = this.updatePosition(bounds.L, bounds.R,
-                        containerPosition.left, containerSize.width, size.width,
-                        scrollPosition.left, windowSize.width);
-                },
-                function () {
-                    css.top = this.updatePosition(bounds.T, bounds.B,
-                        containerPosition.top, containerSize.height,
-                        size.height, scrollPosition.top, windowSize.height);
-                }
-            );
+            if (this.options.horizontal) {
+                css.left = this.updatePosition(bounds.L, bounds.R,
+                    containerPosition.left, containerSize.width, size.width,
+                    scrollPosition.left, windowSize.width);
+            }
+            if (this.options.vertical) {
+                css.top = this.updatePosition(bounds.T, bounds.B,
+                    containerPosition.top, containerSize.height, size.height,
+                    scrollPosition.top, windowSize.height);
+            }
 
             if (css.left !== undefined || css.top !== undefined) {
                 this.$el.css(css);
@@ -149,23 +148,14 @@
             return pos;
         },
 
-        // A utility that lets us avoid doing things we don't need to given the
-        // axes of this instance.
-        forAxes: function (horizontalFn, verticalFn) {
-            if (this.options.horizontal) {
-                horizontalFn.call(this);
-            }
-            if (this.options.vertical) {
-                verticalFn.call(this);
-            }
-        },
-
         calculateElSize: function ($el) {
             var size = {};
-            this.forAxes(
-                function () { size.width = $el.outerWidth(true); },
-                function () { size.height = $el.outerHeight(true); }
-            );
+            if (this.options.horizontal) {
+                size.width = $el.outerWidth(true);
+            }
+            if (this.options.vertical) {
+                size.height = $el.outerHeight(true);
+            }
             return size;
         },
 
@@ -183,16 +173,14 @@
         // of the container.
         calculateBounds: function (insets, containerSize) {
             var bounds = {};
-            this.forAxes(
-                function () {
-                    bounds.R = this.calculateBound(insets.R, containerSize.width);
-                    bounds.L = this.calculateBound(insets.L, containerSize.width, true);
-                },
-                function () {
-                    bounds.T = this.calculateBound(insets.T, containerSize.height);
-                    bounds.B = this.calculateBound(insets.B, containerSize.height, true);
-                }
-            );
+            if (this.options.horizontal) {
+                bounds.R = this.calculateBound(insets.R, containerSize.width);
+                bounds.L = this.calculateBound(insets.L, containerSize.width, true);
+            }
+            if (this.options.vertical) {
+                bounds.T = this.calculateBound(insets.T, containerSize.height);
+                bounds.B = this.calculateBound(insets.B, containerSize.height, true);
+            }
             return bounds;
         },
 
