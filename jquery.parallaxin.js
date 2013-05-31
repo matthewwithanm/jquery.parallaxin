@@ -263,8 +263,8 @@
         var i, instance,
             oldPos = P._scrollPosition,
             pos = P.getScrollPosition(true),
-            topChanged = oldPos && oldPos.top !== pos.top,
-            leftChanged = oldPos && oldPos.top !== pos.top;
+            topChanged = !oldPos || oldPos.top !== pos.top,
+            leftChanged = !oldPos || oldPos.top !== pos.top;
         for (i = P.instances.length - 1; i >= 0; i -= 1) {
             instance = P.instances[i];
             if ((topChanged && instance.options.vertical) || (leftChanged && instance.options.horizontal)) {
