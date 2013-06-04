@@ -152,10 +152,10 @@
         calculateElSize: function ($el) {
             var size = {};
             if (this.options.horizontal) {
-                size.width = $el.outerWidth(true);
+                size.width = $el.outerWidth();
             }
             if (this.options.vertical) {
-                size.height = $el.outerHeight(true);
+                size.height = $el.outerHeight();
             }
             return size;
         },
