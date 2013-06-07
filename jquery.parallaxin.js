@@ -26,6 +26,22 @@
             // Does the container change sizes?
             responsive: false,
 
+            // Should the element use fixed positioning? The default value
+            // depends on whether the element is styles as "position: fixed"
+            // at the time the plugin is initialized, so normally you shouldn't
+            // need to set this option; just set "position: fixed" in your
+            // stylesheet.
+            //
+            // Using fixed positioning means the element is positioned relative
+            // to the document instead of its parent and can result in a much
+            // smoother parallax effect.
+            fixed: null,
+
+            // Should the element be hidden when its container leaves the
+            // viewport? This helps to eliminate z-index issues when using fixed
+            // positioning and multiple parallaxin elements.
+            hideOnExit: true,
+
             // Contrain the range of motion within the container. Can be a
             // string or array, specified in the order "top", "right", "bottom",
             // "left." If less than four values are provided, they will be
@@ -36,6 +52,8 @@
         },
 
         initialize: function ($el, options) {
+            var isFixed;
+
             this.$el = $el;
             this.options = $.extend(this.defaultOptions, this.getHtmlOptions(), options);
             if (this.options.container) {
@@ -44,6 +62,14 @@
                 this.$container = this.$el.parent();
             }
             this._insets = this.parseInsets(this.options.insets);
+
+            isFixed = $el.css('position') === 'fixed';
+            if (this.options.fixed === null || this.options.fixed === undefined) {
+                this.options.fixed = isFixed;
+            }
+            if (this.options.fixed && !isFixed) {
+                this.$el.css('position', 'fixed');
+            }
 
             if (!P.$win) {
                 P.$win = $(window);
@@ -71,6 +97,7 @@
         // Update the position of the element.
         update: function (r) {
             var
+                shouldHide,
                 recalculate = r !== false,
                 recalculateContainerSize = recalculate,
                 recalculateSize = recalculate,
@@ -90,7 +117,7 @@
             }
 
             if (recalculateSize || !size) {
-                size = this._size = this.calculateElSize(this.$el);
+                size = this._size = this.calculateElSize(this.$el, this._isHidden);
             }
 
             if (recalculateContainerPosition || !containerPosition) {
@@ -109,6 +136,15 @@
                 css.top = this.updatePosition(bounds.T, bounds.B,
                     containerPosition.top, containerSize.height, size.height,
                     scrollPosition.top, windowSize.height);
+            }
+
+            if (this.options.hideOnExit) {
+                shouldHide = (!this.options.horizontal || css.left === undefined) &&
+                    (!this.options.vertical || css.top === undefined);
+                if (shouldHide !== !!this._isHidden) {
+                    this.$el[shouldHide ? 'hide' : 'show']();
+                    this._isHidden = shouldHide;
+                }
             }
 
             if (css.left !== undefined || css.top !== undefined) {
@@ -146,16 +182,29 @@
 
             pct = (scrollPosition - min) / (max - min);
             pos = targetMin + pct * (targetMax - targetMin);
+
+            if (this.options.fixed) {
+                // Make the positioin relative to the document instead of the
+                // container.
+                pos += containerPosition - scrollPosition;
+            }
+
             return pos;
         },
 
-        calculateElSize: function ($el) {
+        calculateElSize: function ($el, isHidden) {
             var size = {};
+            if (isHidden) {
+                $el.show();
+            }
             if (this.options.horizontal) {
                 size.width = $el.outerWidth();
             }
             if (this.options.vertical) {
                 size.height = $el.outerHeight();
+            }
+            if (isHidden) {
+                $el.hide();
             }
             return size;
         },
