@@ -55,7 +55,7 @@
             var isFixed;
 
             this.$el = $el;
-            this.options = $.extend(this.defaultOptions, this.getHtmlOptions(), options);
+            this.options = $.extend({}, this.defaultOptions, this.getHtmlOptions(), options);
             if (this.options.container) {
                 this.$container = $(this.options.container);
             } else {
