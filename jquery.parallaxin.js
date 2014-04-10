@@ -469,4 +469,4 @@
             return returnValue;
         }
     });
-}(this.jQuery, window, document));
+}(jQuery, window, document));
