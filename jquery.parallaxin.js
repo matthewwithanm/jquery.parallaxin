@@ -137,6 +137,21 @@
 
         // Update the position of the element.
         update: function (r) {
+            var self = this;
+            if (requestAnimationFrame) {
+                if (!this._afScheduled) {
+                    this._afScheduled = true;
+                    requestAnimationFrame(function () {
+                        self.updateNow(r);
+                        self._afScheduled = false;
+                    });
+                }
+            } else {
+                this.updateNow(r);
+            }
+        },
+
+        updateNow: function (r) {
             var
                 a, b, c,
                 shouldHide,
