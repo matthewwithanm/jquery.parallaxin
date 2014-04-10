@@ -26,6 +26,9 @@
             // Does the container change sizes?
             responsive: false,
 
+            // The element whose scrolling should change the position.
+            scrollingElement: 'window',
+
             // Should the element use fixed positioning? The default value
             // depends on whether the element is styles as "position: fixed"
             // at the time the plugin is initialized, so normally you shouldn't
@@ -74,10 +77,12 @@
             if (!P.$win) {
                 P.$win = $(window);
             }
-            if (!P._hasScrollHandler) {
-                P._hasScrollHandler = true;
-                P.$win.on('scroll', P.onScroll);
-            }
+
+            // Add the listener to the scrolling element.
+            this.$scrollingEl = this.options.scrollingElement ? $(this.options.scrollingElement) : P.$win;
+            this._onScroll = $.proxy(this.onScroll, this);
+            this.$scrollingEl.on('scroll', this._onScroll);
+
             if (!P._hasResizeHandler && this.options.responsive) {
                 P._hasResizeHandler = true;
                 P.$win.on('resize', P.onWindowResize);
@@ -91,12 +96,14 @@
         destroy: function () {
             var index = P.instances.indexOf(this);
             P.instances.splice(index, 1);
+            this.$scrollingEl.off('scroll', this._onScroll);
             return this;
         },
 
         // Update the position of the element.
         update: function (r) {
             var
+                a, b, c,
                 shouldHide,
                 recalculate = r !== false,
                 recalculateContainerSize = recalculate,
@@ -107,7 +114,7 @@
                 size = this._size,
                 containerSize = this._containerSize,
                 containerPosition = this._containerPosition,
-                scrollPosition = P.getScrollPosition(),
+                scrollPosition = this.getScrollPosition(),
                 windowSize = P.getWindowSize(),
                 css = {};
 
@@ -121,10 +128,21 @@
             }
 
             if (recalculateContainerPosition || !containerPosition) {
-                // Unlike sizes, jQUery calculates both vertical and horizontal
+                // Unlike sizes, jQuery calculates both vertical and horizontal
                 // positions with one measurement, so we can't do them
                 // separately.
-                containerPosition = this._containerPosition = this.$container.offset();
+
+                // Determine the position of the element relative to the top of
+                // the scrolling element's contents. We need to make sure we
+                // account for both the normal case (scrolling the document) and
+                // for scrolling of arbitrary (overflown) elements.
+                a = this.$container.offset();
+                b = {left: this.$scrollingEl.scrollLeft(), top: this.$scrollingEl.scrollTop()};
+                c = {left: P.$win.scrollLeft(), top: P.$win.scrollTop()};
+                containerPosition = this._containerPosition = {
+                  left: a.left + b.left - c.left,
+                  top: a.top + b.top - c.top
+                }
             }
 
             if (this.options.horizontal) {
@@ -146,7 +164,6 @@
                     this._isHidden = shouldHide;
                 }
             }
-
             if (css.left !== undefined || css.top !== undefined) {
                 this.$el.css(css);
             }
@@ -285,18 +302,30 @@
                 }
             });
             return opts;
-        }
-    };
+        },
 
+        onScroll: function () {
+            // TODO: We really want to not get the position multiple times for the same element.
+            var
+                oldPos = this._scrollPosition,
+                pos = this.getScrollPosition(true),
+                topChanged = !oldPos || oldPos.top !== pos.top,
+                leftChanged = !oldPos || oldPos.top !== pos.top;
 
-    Parallaxin.getScrollPosition = function (recalculate) {
-        if (recalculate || !P._scrollPosition) {
-            P._scrollPosition = {
-                top: P.$win.scrollTop(),
-                left: P.$win.scrollLeft()
-            };
+            if ((topChanged && this.options.vertical) || (leftChanged && this.options.horizontal)) {
+                this.update(false);
+            }
+        },
+
+        getScrollPosition: function (recalculate) {
+            if (recalculate || !this._scrollPosition) {
+                this._scrollPosition = {
+                    top: this.$scrollingEl.scrollTop(),
+                    left: this.$scrollingEl.scrollLeft()
+                };
+            }
+            return this._scrollPosition;
         }
-        return P._scrollPosition;
     };
 
     Parallaxin.getWindowSize = function (recalculate) {
@@ -307,20 +336,6 @@
             };
         }
         return P._windowSize;
-    };
-
-    Parallaxin.onScroll = function () {
-        var i, instance,
-            oldPos = P._scrollPosition,
-            pos = P.getScrollPosition(true),
-            topChanged = !oldPos || oldPos.top !== pos.top,
-            leftChanged = !oldPos || oldPos.top !== pos.top;
-        for (i = P.instances.length - 1; i >= 0; i -= 1) {
-            instance = P.instances[i];
-            if ((topChanged && instance.options.vertical) || (leftChanged && instance.options.horizontal)) {
-                instance.update(false);
-            }
-        }
     };
 
     Parallaxin.onWindowResize = function () {
