@@ -10,6 +10,24 @@
     P = Parallaxin = function () {};
     Parallaxin.instances = [];
 
+    P.PositionMethod = {
+        ELEMENT_POSITION: function ($el, left, top) {
+          $el.css({left: left, top: top});
+        },
+        CSS_TRANSFORM: function ($el, left, top) {
+            var value = '';
+            if (left != null) {
+                value += 'translateX(' + left + 'px)';
+            }
+            if (top != null) {
+                value += ' translateY(' + top + 'px)';
+            }
+            if (value) {
+                $el.css('transform', value);
+            }
+        }
+    };
+
     Parallaxin.prototype = {
         optionAttributePrefix: 'data-parallaxin-',
 
@@ -28,6 +46,10 @@
 
             // The element whose scrolling should change the position.
             scrollingElement: 'window',
+
+            // How is the position set? This can be either a function or a
+            // string that correspondes to one of the built-in functions.
+            positionMethod: P.PositionMethod.CSS_TRANSFORM,
 
             // Should the element use fixed positioning? The default value
             // depends on whether the element is styles as "position: fixed"
@@ -72,6 +94,19 @@
             }
             if (this.options.fixed && !isFixed) {
                 this.$el.css('position', 'fixed');
+            }
+
+            if (typeof this.options.positionMethod === 'string') {
+                switch (this.options.positionMethod) {
+                case 'elementPosition':
+                    this.options.positionMethod = P.PositionMethod.ELEMENT_POSITION;
+                    break;
+                case 'cssTransform':
+                    this.options.positionMethod = P.PositionMethod.CSS_TRANSFORM;
+                    break;
+                default:
+                    $.error('Invalid positionMethod value: ' + this.options.positionMethod)
+                }
             }
 
             if (!P.$win) {
@@ -165,7 +200,7 @@
                 }
             }
             if (css.left !== undefined || css.top !== undefined) {
-                this.$el.css(css);
+                this.options.positionMethod(this.$el, css.left, css.top);
             }
         },
 
