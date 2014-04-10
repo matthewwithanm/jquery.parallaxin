@@ -18,6 +18,11 @@
             if (left != null || top != null) {
                 $el.css('transform', 'translate(' + (left || 0) + 'px, ' + (top || 0) + 'px)');
             }
+        },
+        CSS_TRANSLATE_3D: function ($el, left, top) {
+            if (left != null || top != null) {
+                $el.css('transform', 'translate3d(' + (left || 0) + 'px, ' + (top || 0) + 'px, 0)');
+            }
         }
     };
 
@@ -42,7 +47,7 @@
 
             // How is the position set? This can be either a function or a
             // string that correspondes to one of the built-in functions.
-            positionMethod: P.PositionMethod.CSS_TRANSLATE,
+            positionMethod: P.PositionMethod.CSS_TRANSLATE_3D,
 
             // Should the element use fixed positioning? The default value
             // depends on whether the element is styles as "position: fixed"
@@ -96,6 +101,9 @@
                     break;
                 case 'cssTranslate':
                     this.options.positionMethod = P.PositionMethod.CSS_TRANSLATE;
+                    break;
+                case 'cssTranslate3d':
+                    this.options.positionMethod = P.PositionMethod.CSS_TRANSLATE_3D;
                     break;
                 default:
                     $.error('Invalid positionMethod value: ' + this.options.positionMethod)
