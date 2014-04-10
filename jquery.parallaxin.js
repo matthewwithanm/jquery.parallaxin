@@ -2,10 +2,36 @@
 (function ($, window, document) {
     'use strict';
 
-    var P, Parallaxin, px, pct;
+    var P, Parallaxin, px, pct, checkTranslate3dSupport, translate3dIsSupported;
 
     px = function (n) { return {value: n, px: true}; };
     pct = function (n) { return {value: n, pct: true}; };
+
+    checkTranslate3dSupport = function () {
+        // From http://stackoverflow.com/a/12621264/155370
+        var $el, transforms, t, el, has3d;
+        if (translate3dIsSupported == null) {
+            $el = $('<p>');
+            el = $el[0];
+            transforms = {
+                'WebkitTransform': '-webkit-transform',
+                'OTransform': '-o-transform',
+                'msTransform': '-ms-transform',
+                'MozTransform': '-moz-transform',
+                'transform': 'transform'
+            };
+            $el.appendTo('body');
+            for (t in transforms) {
+                if (el.style[t] !== undefined) {
+                    el.style[t] = 'translate3d(1px, 1px, 1px)';
+                    has3d = window.getComputedStyle(el).getPropertyValue(transforms[t]);
+                }
+            }
+            $el.remove();
+            translate3dIsSupported = has3d !== undefined && has3d.length > 0 && has3d !== 'none';
+        }
+        return translate3dIsSupported;
+    };
 
     P = Parallaxin = function () {};
     Parallaxin.instances = [];
@@ -23,6 +49,12 @@
             if (left != null || top != null) {
                 $el.css('transform', 'translate3d(' + (left || 0) + 'px, ' + (top || 0) + 'px, 0)');
             }
+        },
+        CSS_TRANSLATE_AUTO: function ($el, left, top) {
+            if (translate3dIsSupported) {
+                return P.PositionMethod.CSS_TRANSLATE_3D($el, left, top);
+            }
+            return P.PositionMethod.CSS_TRANSLATE($el, left, top);
         }
     };
 
@@ -47,7 +79,7 @@
 
             // How is the position set? This can be either a function or a
             // string that correspondes to one of the built-in functions.
-            positionMethod: P.PositionMethod.CSS_TRANSLATE_3D,
+            positionMethod: P.PositionMethod.CSS_TRANSLATE_AUTO,
 
             // Should the element use fixed positioning? The default value
             // depends on whether the element is styles as "position: fixed"
@@ -105,10 +137,15 @@
                 case 'cssTranslate3d':
                     this.options.positionMethod = P.PositionMethod.CSS_TRANSLATE_3D;
                     break;
+                case 'cssTranslateAuto':
+                    this.options.positionMethod = P.PositionMethod.CSS_TRANSLATE_AUTO;
+                    break;
                 default:
                     $.error('Invalid positionMethod value: ' + this.options.positionMethod)
                 }
             }
+
+            checkTranslate3dSupport();
 
             if (!P.$win) {
                 P.$win = $(window);
