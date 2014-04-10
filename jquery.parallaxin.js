@@ -14,7 +14,7 @@
         ELEMENT_POSITION: function ($el, left, top) {
           $el.css({left: left, top: top});
         },
-        CSS_TRANSFORM: function ($el, left, top) {
+        CSS_TRANSLATE: function ($el, left, top) {
             var value = '';
             if (left != null) {
                 value += 'translateX(' + left + 'px)';
@@ -49,7 +49,7 @@
 
             // How is the position set? This can be either a function or a
             // string that correspondes to one of the built-in functions.
-            positionMethod: P.PositionMethod.CSS_TRANSFORM,
+            positionMethod: P.PositionMethod.CSS_TRANSLATE,
 
             // Should the element use fixed positioning? The default value
             // depends on whether the element is styles as "position: fixed"
@@ -101,8 +101,8 @@
                 case 'elementPosition':
                     this.options.positionMethod = P.PositionMethod.ELEMENT_POSITION;
                     break;
-                case 'cssTransform':
-                    this.options.positionMethod = P.PositionMethod.CSS_TRANSFORM;
+                case 'cssTranslate':
+                    this.options.positionMethod = P.PositionMethod.CSS_TRANSLATE;
                     break;
                 default:
                     $.error('Invalid positionMethod value: ' + this.options.positionMethod)
