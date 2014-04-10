@@ -1,0 +1,22 @@
+{
+  "name": "jquery.parallaxin",
+  "main": "jquery.parallaxin.js",
+  "version": "1.0.0",
+  "homepage": "https://github.com/matthewwithanm/jquery.parallaxin",
+  "description": "Create an element that scrolls at a different speed than the document but always stays within a container.",
+  "keywords": [
+    "parallax"
+  ],
+  "authors": [
+    "Matthew Dapena-Tretter"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "src/bower_components/",
+    "test",
+    "tests"
+  ]
+}
