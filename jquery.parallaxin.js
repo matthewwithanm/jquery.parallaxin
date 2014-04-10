@@ -15,15 +15,8 @@
           $el.css({left: left, top: top});
         },
         CSS_TRANSLATE: function ($el, left, top) {
-            var value = '';
-            if (left != null) {
-                value += 'translateX(' + left + 'px)';
-            }
-            if (top != null) {
-                value += ' translateY(' + top + 'px)';
-            }
-            if (value) {
-                $el.css('transform', value);
+            if (left != null || top != null) {
+                $el.css('transform', 'translate(' + (left || 0) + 'px, ' + (top || 0) + 'px)');
             }
         }
     };
