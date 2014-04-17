@@ -383,7 +383,7 @@
                 oldPos = this._scrollPosition,
                 pos = this.getScrollPosition(true),
                 topChanged = !oldPos || oldPos.top !== pos.top,
-                leftChanged = !oldPos || oldPos.top !== pos.top;
+                leftChanged = !oldPos || oldPos.left !== pos.left;
 
             if ((topChanged && this.options.vertical) || (leftChanged && this.options.horizontal)) {
                 this.update(false);
