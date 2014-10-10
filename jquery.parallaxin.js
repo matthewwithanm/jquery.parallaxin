@@ -152,7 +152,25 @@
             }
 
             // Add the listener to the scrolling element.
-            this.$scrollingEl = this.options.scrollingElement ? $(this.options.scrollingElement) : P.$win;
+            if (this.options.scrollingElement) {
+                var i, len;
+                // If the scrollingElement that has been provided is already a
+                // jQuery object (or at least, jQuery objecty enough for our
+                // purposes), then don't bother wrapping it.
+                var duck = ['on', 'off', 'scrollTop', 'scrollLeft']
+                var quacks = true;
+                for (i = 0, len = duck.length; i < len; i++) {
+                    quacks = typeof this.options.scrollingElement[duck[i]] === 'function';
+                    if (!quacks) break;
+                }
+                if (quacks) {
+                    this.$scrollingEl = this.options.scrollingElement;
+                } else {
+                    this.$scrollingEl = $(this.options.scrollingElement);
+                }
+            } else {
+                this.$scrollingEl = P.$win;
+            }
             this._onScroll = $.proxy(this.onScroll, this);
             this.$scrollingEl.on('scroll', this._onScroll);
 
