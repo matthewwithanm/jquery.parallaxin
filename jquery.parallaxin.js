@@ -45,6 +45,11 @@
                 $el.css('transform', 'translate(' + (left || 0) + 'px, ' + (top || 0) + 'px)');
             }
         },
+        BACKGROUND_POSITION: function ($el, left, top) {
+            if (left != null || top != null) {
+                $el.css('background-position', (left || 0) + 'px ' + (top || 0) + 'px');
+            }
+        },
         CSS_TRANSLATE_3D: function ($el, left, top) {
             if (left != null || top != null) {
                 $el.css('transform', 'translate3d(' + (left || 0) + 'px, ' + (top || 0) + 'px, 0)');
@@ -139,6 +144,9 @@
                     break;
                 case 'cssTranslateAuto':
                     this.options.positionMethod = P.PositionMethod.CSS_TRANSLATE_AUTO;
+                    break;
+                case 'backgroundPosition':
+                    this.options.positionMethod = P.PositionMethod.BACKGROUND_POSITION;
                     break;
                 default:
                     $.error('Invalid positionMethod value: ' + this.options.positionMethod)
