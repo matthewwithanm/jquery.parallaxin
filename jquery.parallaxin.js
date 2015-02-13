@@ -193,9 +193,14 @@
         },
 
         destroy: function () {
-            var index = P.instances.indexOf(this);
+            var index, elStyles, key;
+            index = P.instances.indexOf(this);
+            elStyles = this.$el[0].style;
             P.instances.splice(index, 1);
             this.$scrollingEl.off('scroll', this._onScroll);
+            for (key in elStyles) {
+                elStyles[key] = '';
+            }
             return this;
         },
 
